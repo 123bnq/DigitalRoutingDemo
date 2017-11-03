@@ -1,8 +1,8 @@
 class Requests:
 
-    def __init__(self, intime, outtime, source, des, index):
-        self.inTime = intime
-        self.outTime = outtime
+    def __init__(self, in_time, out_time, source, des, index):
+        self.inTime = in_time
+        self.outTime = out_time
         self.source = source
         self.des = des
         self.index = index
@@ -16,5 +16,5 @@ class Requests:
         print("Source: ", self.source)
         print("Des: ", self.des)
         print("IsCall = ", self.isCall)
-        if self.path != []:
+        if self.path:
             print("Path: ", self.path)
