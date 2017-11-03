@@ -50,11 +50,11 @@ while True:
 def generate_time(mean, n_o_r):
     while True:
         condition = False
-        time = np.random.exponential(mean, n_o_r)
-        for t in time:
+        t = np.random.exponential(mean, n_o_r)
+        for t in t:
             if t == 0: condition = True
         if not condition: break
-    return time
+    return t
 
 
 events_time = generate_time(1 / lam, number_of_requests)
@@ -78,7 +78,6 @@ for index in range(len(time_new)):
     for j in range(len(time_new) - 1 - index):
         if time_new[j] > time_new[j + 1]:
             time_new[j], time_new[j + 1] = time_new[j + 1], time_new[j]
-
 
 # put each request into a list
 Req = []
@@ -107,15 +106,15 @@ def binding_edges(request):
     #     check = False
     request.path = nx.shortest_path(G, request.source, request.des, weight='weight')
     for i in range(0, len(request.path) - 1):
-        for edges in comEdges:
-            if edges == (request.path[i], request.path[i + 1]) or edges == (request.path[i + 1], request.path[i]):
-                comEdges[edges].use_wavelength(1)
-                print("wavelength 1 on ", edges, ": ", comEdges[edges].get_wavelength(1))
+        for edg in comEdges:
+            if edg == (request.path[i], request.path[i + 1]) or edg == (request.path[i + 1], request.path[i]):
+                comEdges[edg].use_wavelength(1)
+                print("wavelength 1 on ", edg, ": ", comEdges[edg].get_wavelength(1))
     request.printDetails()
-    for e in Events:
-        if e != request and e.inTime == request.inTime:
-            e.path = request.path
-            e.printDetails()
+    for event in Events:
+        if event != request and event.inTime == request.inTime:
+            event.path =    request.path
+            event.printDetails()
             print()
             break
             # for i in range(0, len(req.path) - 1):
