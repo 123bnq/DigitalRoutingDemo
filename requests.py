@@ -18,3 +18,6 @@ class Requests:
         print("IsCall = ", self.isCall)
         if self.path:
             print("Path: ", self.path)
+
+    def set_path(self, path):
+        self.path = path

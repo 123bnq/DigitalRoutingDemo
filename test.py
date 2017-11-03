@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 3
+number_of_requests = 4
 a = 5
 muy = 1
 lam = a * muy
@@ -47,18 +47,20 @@ while True:
 
 
 # Generate exponential interval time and holding time of requests
-def generate_time(mean, n_o_r):
+def generate_time(mean, number_requests):
     while True:
         condition = False
-        t = np.random.exponential(mean, n_o_r)
-        for t in t:
-            if t == 0: condition = True
-        if not condition: break
-    return t
+        time = np.random.exponential(mean, number_requests)
+        for t in time:
+            if t == 0:
+                condition = True
+        if not condition:
+            break
+    return time
 
 
-events_time = generate_time(1 / lam, number_of_requests)
-holding_time = generate_time(1 / muy, number_of_requests)
+events_time = generate_time(1/lam, number_of_requests)
+holding_time = generate_time(1/muy, number_of_requests)
 
 s = 0
 time = []
@@ -104,7 +106,7 @@ def binding_edges(request):
     print("des:", request.des)
     # while True:
     #     check = False
-    request.path = nx.shortest_path(G, request.source, request.des, weight='weight')
+    request.set_path(nx.shortest_path(G, request.source, request.des, weight='weight'))
     for i in range(0, len(request.path) - 1):
         for edg in comEdges:
             if edg == (request.path[i], request.path[i + 1]) or edg == (request.path[i + 1], request.path[i]):
@@ -113,7 +115,7 @@ def binding_edges(request):
     request.printDetails()
     for event in Events:
         if event != request and event.inTime == request.inTime:
-            event.path =    request.path
+            event.path = request.path
             event.printDetails()
             print()
             break
