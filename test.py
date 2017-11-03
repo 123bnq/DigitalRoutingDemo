@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 20
+number_of_requests = 3
 a = 5
 muy = 1
 lam = a*muy
