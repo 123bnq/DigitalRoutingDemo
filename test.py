@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 4
+number_of_requests = 1
 a = 5
 muy = 1
 lam = a * muy
@@ -73,7 +73,6 @@ for index in range(0, number_of_requests):
     time_line.append(time[index] + holding_time[index])
 
 time_new = time + time_line
-# print("before",timeNew)
 
 # sort the whole time line
 for index in range(len(time_new)):
@@ -102,6 +101,7 @@ print(len(Events))
 
 # algorithm
 def binding_edges(request):
+    print("BINDING")
     print("src:", request.source)
     print("des:", request.des)
 
@@ -109,35 +109,46 @@ def binding_edges(request):
     #     check = False
     request.set_path(nx.shortest_path(G, request.source, request.des, weight='weight'))
     list_of_wl = list(range(0, 8))
-    chosen_wl = np.random.choice(list_of_wl)
-    condition_loop = True
-    for i in range(0, len(request.path) - 1):
-        temp_edges1 = (request.path[i], request.path[i + 1])
-        temp_edges2 = (request.path[i + 1], request.path[i])
-        for edg in com_edges:
-            if edg == temp_edges1 or edg == temp_edges2:
-                weight = com_edges[edg].get_wavelength(chosen_wl)
-                if weight == 0:
-                    condition_loop = False
-                elif weight == 1:
-                    condition_loop = False
-                elif weight == 2:
-                    condition_loop = True
-        if condition_loop:
-            for i in range(0, len(request.path) - 1):
-                for edg in com_edges:
-                    if edg == temp_edges1 or edg == temp_edges2:
-                        com_edges[edg].use_wavelength(chosen_wl)
-                        print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
-                G[request.path[i]][request.path[i + 1]]['weight'] += 1
-        else:
-            list_of_wl.remove(chosen_wl)
+    path_is_set = False
+    while list_of_wl != [] and not path_is_set:
+        # choose random wavelength
+        chosen_wl = np.random.choice(list_of_wl)
+        print("chosen wavelength: ", chosen_wl)
+        condition_loop = True
+        # loop through the wavelength list of each edge
+        for i in range(0, len(request.get_path()) - 1):
+            # pick out
+            temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
+            temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+            for edg in com_edges:
+                if edg == temp_edges1 or edg == temp_edges2:
+                    weight = com_edges[edg].get_wavelength(chosen_wl)
+                    if weight == 0:
+                        condition_loop = False
+                    elif weight == 1:
+                        condition_loop = False
+                    elif weight == 2:
+                        condition_loop = True
+            if condition_loop:
+                request.set_wavelength(chosen_wl)
+                for i in range(0, len(request.get_path()) - 1):
+                    temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
+                    temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+                    for edg in com_edges:
+                        if edg == temp_edges1 or edg == temp_edges2:
+                            com_edges[edg].use_wavelength(chosen_wl)
+                            print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
+                            path_is_set = True
+                            break
+                    G[request.get_path()[i]][request.get_path()[i + 1]]['weight'] += 1
+            else:
+                list_of_wl.remove(chosen_wl)
 
-    request.printDetails()
+    request.print_details()
     for event in Events:
         if event != request and event.inTime == request.inTime:
-            event.path = request.path
-            event.printDetails()
+            event.set_path(request.get_path())
+            event.print_details()
             print()
             break
             # for i in range(0, len(req.path) - 1):
@@ -152,7 +163,19 @@ def binding_edges(request):
 
 
 def release_edges(request):
-    request.path = []
+    print("RELEASED")
+    request.print_details()
+    chosen_wl = request.get_wavelength()
+    for i in range(0, len(request.get_path()) - 1):
+        temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
+        temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+        for edg in com_edges:
+            if edg == temp_edges1 or edg == temp_edges2:
+                com_edges[edg].release_wavelength(chosen_wl)
+                print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
+        G[request.get_path()[i]][request.get_path()[i + 1]]['weight'] -= 1
+    print("path ", request.get_path(), " is clear, wavelength ", chosen_wl, " is released")
+    # request.path = []
 
 
 for e in Events:
@@ -163,7 +186,7 @@ for e in Events:
         # for e in Events:
         #     if e != Events[0] and e.inTime == Events[0].inTime:
         #         e.path = Events[0].path
-        #         e.printDetails()
+        #         e.print_details()
 
         # print(G.number_of_nodes())
         # print(events)

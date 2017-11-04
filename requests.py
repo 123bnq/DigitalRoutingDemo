@@ -7,17 +7,27 @@ class Requests:
         self.des = des
         self.index = index
         self.isCall = 0
-        self.path = []
+        self.__path = []
+        self.__wl = 0
 
-    def printDetails(self):
+    def print_details(self):
         print("Index: ", self.index)
-        print("Incoming time: ", self.inTime)
-        print("Outgoing time: ", self.outTime)
+        # print("Incoming time: ", self.inTime)
+        # print("Outgoing time: ", self.outTime)
         print("Source: ", self.source)
         print("Des: ", self.des)
         print("IsCall = ", self.isCall)
-        if self.path:
-            print("Path: ", self.path)
+        if self.__path:
+            print("Path: ", self.__path)
 
     def set_path(self, path):
-        self.path = path
+        self.__path = path
+
+    def get_path(self):
+        return self.__path
+
+    def set_wavelength(self, wl):
+        self.__wl = wl
+
+    def get_wavelength(self):
+        return self.__wl
