@@ -100,7 +100,7 @@ for index in range(len(time_new)):
 
 print(len(Events))
 
-
+# algorithm
 def binding_edges(request):
     print("src:", request.source)
     print("des:", request.des)
@@ -112,10 +112,6 @@ def binding_edges(request):
     chosen_wl = np.random.choice(list_of_wl)
     condition_loop = True
     for i in range(0, len(request.path) - 1):
-        for edg in comEdges:
-            if edg == (request.path[i], request.path[i + 1]) or edg == (request.path[i + 1], request.path[i]):
-                comEdges[edg].use_wavelength(1)
-                print("wavelength 1 on ", edg, ": ", comEdges[edg].get_wavelength(1))
         temp_edges1 = (request.path[i], request.path[i + 1])
         temp_edges2 = (request.path[i + 1], request.path[i])
         for edg in com_edges:
