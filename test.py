@@ -29,10 +29,10 @@ G.add_edge(10, 4, weight=0)
 G.add_edge(7, 4, weight=0)
 
 edges = list(G.edges())
-comEdges = {}
+com_edges = {}
 
 for index in range(0, G.number_of_edges()):
-    comEdges[edges[index]] = Wavelength()
+    com_edges[edges[index]] = Wavelength()
 
 # Generate source and destination
 while True:
@@ -104,14 +104,39 @@ print(len(Events))
 def binding_edges(request):
     print("src:", request.source)
     print("des:", request.des)
+
     # while True:
     #     check = False
     request.set_path(nx.shortest_path(G, request.source, request.des, weight='weight'))
+    list_of_wl = list(range(0, 8))
+    chosen_wl = np.random.choice(list_of_wl)
+    condition_loop = True
     for i in range(0, len(request.path) - 1):
         for edg in comEdges:
             if edg == (request.path[i], request.path[i + 1]) or edg == (request.path[i + 1], request.path[i]):
                 comEdges[edg].use_wavelength(1)
                 print("wavelength 1 on ", edg, ": ", comEdges[edg].get_wavelength(1))
+        temp_edges1 = (request.path[i], request.path[i + 1])
+        temp_edges2 = (request.path[i + 1], request.path[i])
+        for edg in com_edges:
+            if edg == temp_edges1 or edg == temp_edges2:
+                weight = com_edges[edg].get_wavelength(chosen_wl)
+                if weight == 0:
+                    condition_loop = False
+                elif weight == 1:
+                    condition_loop = False
+                elif weight == 2:
+                    condition_loop = True
+        if condition_loop:
+            for i in range(0, len(request.path) - 1):
+                for edg in com_edges:
+                    if edg == temp_edges1 or edg == temp_edges2:
+                        com_edges[edg].use_wavelength(chosen_wl)
+                        print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
+                G[request.path[i]][request.path[i + 1]]['weight'] += 1
+        else:
+            list_of_wl.remove(chosen_wl)
+
     request.printDetails()
     for event in Events:
         if event != request and event.inTime == request.inTime:
