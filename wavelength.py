@@ -2,6 +2,9 @@ class Wavelength:
     def __init__(self):
         self.w = [2]*8
 
+    def get_data(self):
+        return  self.w
+
     def get_wavelength(self, index):
         return self.w[index]
 
