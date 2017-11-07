@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 50
+number_of_requests = 2
 a = 50
 muy = 1
 lam = a * muy
@@ -109,7 +109,7 @@ def binding_edges(request):
 
     while True:
         check = False
-        request.set_path(nx.shortest_path(G, request.source, request.des, weight='weight'))
+        chosen_path = nx.shortest_path(G, request.source, request.des, weight='weight')
         list_of_wl = list(range(0, 8))
         path_is_set = False
         while list_of_wl != [] and not path_is_set:
@@ -118,10 +118,10 @@ def binding_edges(request):
             print("chosen wavelength: ", chosen_wl)
             condition_loop = True
             # loop through the wavelength list of each edge
-            for i in range(0, len(request.get_path()) - 1):
+            for i in range(0, len(chosen_path) - 1):
                 # pick out one edge
-                temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
-                temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+                temp_edges1 = (chosen_path[i], chosen_path[i + 1])
+                temp_edges2 = (chosen_path[i + 1], chosen_path[i])
                 for edg in com_edges:
                     if edg == temp_edges1 or edg == temp_edges2:
                         weight = com_edges[edg].get_wavelength(chosen_wl)
@@ -150,6 +150,7 @@ def binding_edges(request):
                             break
                     # add weight for the chosen path
                     G[request.get_path()[i]][request.get_path()[i + 1]]['weight'] += 1
+                request.set_path(chosen_path)
                 path_is_set = True
             # if the chosen wavelength is not free then discard the wavelength
             # and choose the other wavelength randomly
