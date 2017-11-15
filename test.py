@@ -109,54 +109,73 @@ def binding_edges(request):
 
     while True:
         check = False
-        chosen_path = nx.shortest_path(G, request.source, request.des, weight='weight')
-        list_of_wl = list(range(0, 8))
-        path_is_set = False
-        while list_of_wl != [] and not path_is_set:
-            # choose random wavelength
-            chosen_wl = np.random.choice(list_of_wl)
-            print("chosen wavelength: ", chosen_wl)
-            condition_loop = True
-            # loop through the wavelength list of each edge
-            for i in range(0, len(chosen_path) - 1):
-                # pick out one edge
-                temp_edges1 = (chosen_path[i], chosen_path[i + 1])
-                temp_edges2 = (chosen_path[i + 1], chosen_path[i])
-                for edg in com_edges:
-                    if edg == temp_edges1 or edg == temp_edges2:
-                        weight = com_edges[edg].get_wavelength(chosen_wl)
-                        # check whether the chosen wavelength is free
-                        if weight == 0:
-                            condition_loop = False
-                        elif weight == 1:
-                            condition_loop = False
-                        elif weight == 2:
-                            condition_loop = True
-                        break
-            # if the chosen wavelength is free then take it and set the path for the request
-            if condition_loop:
-                request.set_wavelength(chosen_wl)
-                # loop through the path
-                for i in range(0, len(request.get_path()) - 1):
-                    # pick one edge
-                    temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
-                    temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+        all_paths = list(nx.all_simple_paths(G, request.source, request.des))
+        # sort all_paths in ascesding order
+        sorted_paths = []
+        len_paths = []
+        for path in all_paths:
+            len_paths.append(len(path))
+        len_paths.sort()
+        for l in len_paths:
+            for path in all_paths:
+                if len(path) == l:
+                    sorted_paths.append(path)
+                    break
+                all_paths.remove(path)
+        for path in sorted_paths:
+            print(path)
+            # chosen_path = nx.shortest_path(G, request.source, request.des, weight='weight')
+            chosen_path = path
+            list_of_wl = list(range(0, 8))
+            path_is_set = False
+            while list_of_wl != [] and not path_is_set:
+                # choose random wavelength
+                chosen_wl = np.random.choice(list_of_wl)
+                print("chosen wavelength: ", chosen_wl)
+                condition_loop = True
+                # loop through the wavelength list of each edge
+                for i in range(0, len(chosen_path) - 1):
+                    # pick out one edge
+                    temp_edges1 = (chosen_path[i], chosen_path[i + 1])
+                    temp_edges2 = (chosen_path[i + 1], chosen_path[i])
                     for edg in com_edges:
                         if edg == temp_edges1 or edg == temp_edges2:
-                            # assign the chosen wavelength for each edge
-                            com_edges[edg].use_wavelength(chosen_wl)
-                            print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
-
+                            weight = com_edges[edg].get_wavelength(chosen_wl)
+                            # check whether the chosen wavelength is free
+                            if weight == 0:
+                                condition_loop = False
+                            elif weight == 1:
+                                condition_loop = True
+                            elif weight == 2:
+                                condition_loop = True
                             break
-                    # add weight for the chosen path
-                    G[request.get_path()[i]][request.get_path()[i + 1]]['weight'] += 1
-                request.set_path(chosen_path)
-                path_is_set = True
-            # if the chosen wavelength is not free then discard the wavelength
-            # and choose the other wavelength randomly
-            else:
-                list_of_wl.remove(chosen_wl)
-        if path_is_set:
+                # if the chosen wavelength is free then take it and set the path for the request
+                if condition_loop:
+                    request.set_wavelength(chosen_wl)
+                    # loop through the path
+                    for i in range(0, len(request.get_path()) - 1):
+                        # pick one edge
+                        temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
+                        temp_edges2 = (request.get_path()[i + 1], request.get_path()[i])
+                        for edg in com_edges:
+                            if edg == temp_edges1 or edg == temp_edges2:
+                                # assign the chosen wavelength for each edge
+                                com_edges[edg].use_wavelength(chosen_wl)
+                                print("wavelength ", chosen_wl, " on ", edg, ": ", com_edges[edg].get_wavelength(chosen_wl))
+
+                                break
+                        # ---add weight for the chosen path
+                        # G[request.get_path()[i]][request.get_path()[i + 1]]['weight'] += 1
+                    request.set_path(chosen_path)
+                    path_is_set = True
+                # if the chosen wavelength is not free then discard the wavelength
+                # and choose the other wavelength randomly
+                else:
+                    list_of_wl.remove(chosen_wl)
+            if path_is_set:
+                check = True
+                break
+        if check:
             break
 
     request.print_details()
@@ -201,6 +220,24 @@ for e in Events:
         release_edges(e)
 for i in range(0, len(edges)):
     print(edges[i], "   ", com_edges[edges[i]].get_data())
+
+"""all_paths = list(nx.all_simple_paths(G, 1, 16))
+len_paths = []
+sort_paths = []
+for path in all_paths:
+    len_paths.append(len(path))
+    # print(path)
+len_paths.sort()
+print(len_paths)
+for lens in len_paths:
+    for path in all_paths:
+        if len(path) == lens:
+            sort_paths.append(path)
+            break
+    all_paths.remove(path)
+for path in sort_paths:
+    print(path)
+print(len(all_paths)"""
         # for e in Events:
         #     if e != Events[0] and e.inTime == Events[0].inTime:
         #         e.path = Events[0].path
