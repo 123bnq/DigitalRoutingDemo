@@ -10,7 +10,7 @@ class Wavelength:
 
     def use_wavelength(self, index):
         if self.w[index] == 0:
-            return -1
+            print("can't use")
         else:
             self.w[index] -= 1
 
