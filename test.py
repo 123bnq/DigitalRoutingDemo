@@ -4,10 +4,10 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 180
+number_of_requests = 10000
 number_of_blocks = 0
-a = 10
-muy = 1
+a = 50
+muy = 0.1
 lam = a * muy
 
 # Generate network
@@ -36,15 +36,15 @@ for index in range(0, G.number_of_edges()):
     com_edges[edges[index]] = Wavelength()
 
 # Generate source and destination
-while True:
-    check = False
-    source = np.random.randint(1, 18, number_of_requests)
-    destination = np.random.randint(1, 18, number_of_requests)
-    for index in range(0, number_of_requests):
-        if source[index] == destination[index]:
-            check = True
-    if not check:
-        break
+
+check = False
+source = np.random.randint(1, 18, number_of_requests)
+destination = np.random.randint(1, 18, number_of_requests)
+for index in range(0, number_of_requests):
+    if source[index] == destination[index]:
+        rand_array = list(range(1,18))
+        rand_array.remove(destination[index])
+        destination[index] = np.random.choice(rand_array)
 
 
 # Generate exponential interval time and holding time of requests
