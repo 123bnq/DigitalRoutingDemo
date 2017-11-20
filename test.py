@@ -130,7 +130,7 @@ def binding_edges(request):
         if sorted_paths == []:
             global number_of_blocks
             number_of_blocks += 1
-            # print("number of blocks: ", number_of_blocks, " index ", request.index, "from ", request.source, " to ", request.des)
+            print("number of blocks: ", number_of_blocks, " index ", request.index, "from ", request.source, " to ", request.des)
             # print("can't bind")
             check = True
         if check:
@@ -169,6 +169,7 @@ def release_edges(request):
         # request.path = []
     else:
         print("request is block")
+
 
 # Generate source and destination
 source = np.random.randint(1, 18, number_of_requests)
