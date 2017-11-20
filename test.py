@@ -6,7 +6,7 @@ from wavelength import Wavelength
 
 number_of_requests = 10000
 number_of_blocks = 0
-a = 100
+a = 230
 muy = 1
 lam = a * muy
 
@@ -35,67 +35,7 @@ com_edges = {}
 for index in range(0, G.number_of_edges()):
     com_edges[edges[index]] = Wavelength()
 
-# Generate source and destination
-source = np.random.randint(1, 18, number_of_requests)
-destination = np.random.randint(1, 18, number_of_requests)
-for index in range(0, number_of_requests):
-    if source[index] == destination[index]:
-        rand_array = list(range(1,18))
-        rand_array.remove(destination[index])
-        destination[index] = np.random.choice(rand_array)
-# print(*source)
-# print(*destination)
 
-# Generate exponential interval time and holding time of requests
-def generate_time(mean, number_requests):
-    while True:
-        condition = False
-        time = np.random.exponential(mean, number_requests)
-        for t in time:
-            if t == 0:
-                condition = True
-        if not condition:
-            break
-    return time
-
-
-events_time = generate_time(1/lam, number_of_requests)
-holding_time = generate_time(1/muy, number_of_requests)
-
-s = 0
-time = []
-for e in events_time:
-    s += e
-    time.append(s)
-
-time_line = []
-for index in range(0, number_of_requests):
-    time_line.append(time[index] + holding_time[index])
-
-time_new = time + time_line
-
-# sort the whole time line
-for index in range(len(time_new)):
-    for j in range(len(time_new) - 1 - index):
-        if time_new[j] > time_new[j + 1]:
-            time_new[j], time_new[j + 1] = time_new[j + 1], time_new[j]
-
-# put each request into a list
-Req = []
-for index in range(0, number_of_requests):
-    req = Requests(time[index], time_line[index], source[index], destination[index], index)
-    Req.append(req)
-
-# put each request into a list following time_new
-Events = []
-for index in range(len(time_new)):
-    for req in Req:
-        if req.inTime == time_new[index]:
-            Events.append(req)
-        elif req.outTime == time_new[index]:
-            temp = cp.copy(req)
-            temp.isCall = 1
-            Events.append(temp)
 
 # print(len(Events))
 
@@ -159,7 +99,7 @@ def binding_edges(request):
                 if condition_loop:
                     request.set_wavelength(chosen_wl)
                     request.set_path(chosen_path)
-                    print("path length: ", len(chosen_path))
+                    # print("path length: ", len(chosen_path))
                     # loop through the path
                     for i in range(0, len(request.get_path()) - 1):
                         # pick one edge
@@ -190,8 +130,8 @@ def binding_edges(request):
         if sorted_paths == []:
             global number_of_blocks
             number_of_blocks += 1
-            print("number of blocks: ", number_of_blocks, " index ", request.index, "from ", request.source, " to ", request.des)
-            print("can't bind")
+            # print("number of blocks: ", number_of_blocks, " index ", request.index, "from ", request.source, " to ", request.des)
+            # print("can't bind")
             check = True
         if check:
             break
@@ -230,6 +170,68 @@ def release_edges(request):
     else:
         print("request is block")
 
+# Generate source and destination
+source = np.random.randint(1, 18, number_of_requests)
+destination = np.random.randint(1, 18, number_of_requests)
+for index in range(0, number_of_requests):
+    if source[index] == destination[index]:
+        rand_array = list(range(1,18))
+        rand_array.remove(destination[index])
+        destination[index] = np.random.choice(rand_array)
+# print(*source)
+# print(*destination)
+
+# Generate exponential interval time and holding time of requests
+def generate_time(mean, number_requests):
+    while True:
+        condition = False
+        time = np.random.exponential(mean, number_requests)
+        for t in time:
+            if t == 0:
+                condition = True
+        if not condition:
+            break
+    return time
+
+
+events_time = generate_time(1/lam, number_of_requests)
+holding_time = generate_time(1/muy, number_of_requests)
+
+s = 0
+time = []
+for e in events_time:
+    s += e
+    time.append(s)
+
+time_line = []
+for index in range(0, number_of_requests):
+    time_line.append(time[index] + holding_time[index])
+
+time_new = time + time_line
+
+# sort the whole time line
+time_new.sort()
+# for index in range(len(time_new)):
+#     for j in range(len(time_new) - 1 - index):
+#         if time_new[j] > time_new[j + 1]:
+#             time_new[j], time_new[j + 1] = time_new[j + 1], time_new[j]
+
+# put each request into a list
+Req = []
+for index in range(0, number_of_requests):
+    req = Requests(time[index], time_line[index], source[index], destination[index], index)
+    Req.append(req)
+
+# put each request into a list following time_new
+Events = []
+for time in time_new:
+    for req in Req:
+        if req.inTime == time:
+            Events.append(req)
+        elif req.outTime == time:
+            temp = cp.copy(req)
+            temp.isCall = 1
+            Events.append(temp)
 
 for e in Events:
     if e.isCall == 0:
