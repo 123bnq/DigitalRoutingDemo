@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 1000
+number_of_requests = 10000
 number_of_blocks = 0
 a = 100
 muy = 1
@@ -43,7 +43,8 @@ for index in range(0, number_of_requests):
         rand_array = list(range(1,18))
         rand_array.remove(destination[index])
         destination[index] = np.random.choice(rand_array)
-
+# print(*source)
+# print(*destination)
 
 # Generate exponential interval time and holding time of requests
 def generate_time(mean, number_requests):
@@ -108,23 +109,29 @@ def binding_edges(request):
     while True:
         check = False
         all_paths = list(nx.all_simple_paths(G, request.source, request.des))
+        # print("number of path before sorted ", len(all_paths))
         # sort all_paths in ascesding order
         sorted_paths = []
         len_paths = []
         for path in all_paths:
             len_paths.append(len(path))
         len_paths.sort()
+        # print(len(len_paths))
         for l in len_paths:
             for path in all_paths:
                 if len(path) == l:
                     sorted_paths.append(path)
+                    all_paths.remove(path)
                     break
-                all_paths.remove(path)
+
+                # print(len(sorted_paths))
         path_is_set = False
+        # print("number of paths ", len(sorted_paths))
         while (not path_is_set) and sorted_paths != []:
             chosen_path = sorted_paths[0]
             list_of_wl = list(range(0, 8))
             while list_of_wl != [] and not path_is_set:
+                # print(len(list_of_wl))
                 # choose random wavelength
                 chosen_wl = np.random.choice(list_of_wl)
                 # print("chosen wavelength: ", chosen_wl)
@@ -152,6 +159,7 @@ def binding_edges(request):
                 if condition_loop:
                     request.set_wavelength(chosen_wl)
                     request.set_path(chosen_path)
+                    print("path length: ", len(chosen_path))
                     # loop through the path
                     for i in range(0, len(request.get_path()) - 1):
                         # pick one edge
@@ -170,6 +178,7 @@ def binding_edges(request):
                 # if the chosen wavelength is not free then discard the wavelength
                 # and choose the other wavelength randomly
                 else:
+                    # print("cant use wl ", chosen_wl)
                     list_of_wl.remove(chosen_wl)
             if path_is_set:
                 check = True
@@ -181,8 +190,8 @@ def binding_edges(request):
         if sorted_paths == []:
             global number_of_blocks
             number_of_blocks += 1
-            # print("number of blocks: ", number_of_blocks)
-            # print("can't bind")
+            print("number of blocks: ", number_of_blocks, " index ", request.index, "from ", request.source, " to ", request.des)
+            print("can't bind")
             check = True
         if check:
             break
@@ -229,22 +238,24 @@ for e in Events:
         release_edges(e)
 """for i in range(0, len(edges)):
     print(edges[i], "   ", com_edges[edges[i]].get_data())"""
-print(number_of_blocks)
+print(number_of_blocks/number_of_requests*100,"%")
+# print(time_new[-1])
 
-"""all_paths = list(nx.all_simple_paths(G, 1, 16))
+"""all_paths = list(nx.all_simple_paths(G, 1, 2))
+print(len(all_paths))
 len_paths = []
 sort_paths = []
 for path in all_paths:
     len_paths.append(len(path))
     # print(path)
 len_paths.sort()
-print(len_paths)
+# print(len_paths)
 for lens in len_paths:
     for path in all_paths:
         if len(path) == lens:
             sort_paths.append(path)
+            all_paths.remove(path)
             break
-    all_paths.remove(path)
-for path in sort_paths:
-    print(path)
-print(len(all_paths)"""
+for paths in sort_paths:
+    print(paths)"""
+
