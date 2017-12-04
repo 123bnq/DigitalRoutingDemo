@@ -139,7 +139,7 @@ for index in range(0, number_of_requests):
         rand_array.remove(destination[index])
         destination[index] = np.random.choice(rand_array)
 
-for fraction in range(220, 301, 20):
+for fraction in range(300, 301, 20):
     print("Fraction of lambda/muy:", fraction)
     muy = 1
     lam = fraction * muy
