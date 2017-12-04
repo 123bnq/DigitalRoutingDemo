@@ -4,7 +4,7 @@ import copy as cp
 from requests import Requests
 from wavelength import Wavelength
 
-number_of_requests = 1000
+number_of_requests = 10000
 number_of_blocks = 0
 
 # Generate network
@@ -145,6 +145,7 @@ for fraction in range(20, 101, 20):
     lam = fraction * muy
     for trial in range(1,6):
         number_of_blocks = 0
+
         # Generate exponential interval time and holding time of requests
         def generate_time(mean, number_requests):
             while True:
