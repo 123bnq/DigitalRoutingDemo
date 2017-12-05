@@ -126,26 +126,27 @@ def release_edges(request):
             for edg in com_edges:
                 if edg == temp_edges1 or edg == temp_edges2:
                     com_edges[edg].release_wavelength(chosen_wl)
+                    break
     else:
         print("request is block")
 
 
-# Generate source and destination
-source = np.random.randint(1, 18, number_of_requests)
-destination = np.random.randint(1, 18, number_of_requests)
-for index in range(0, number_of_requests):
-    if source[index] == destination[index]:
-        rand_array = list(range(1,18))
-        rand_array.remove(destination[index])
-        destination[index] = np.random.choice(rand_array)
-
-for fraction in range(300, 301, 20):
+for fraction in range(320, 401, 20):
     print("Fraction of lambda/muy:", fraction)
     muy = 1
     lam = fraction * muy
     for trial in range(1,6):
         number_of_blocks = 0
+        # Generate source and destination
+        source = np.random.randint(1, 18, number_of_requests)
+        destination = np.random.randint(1, 18, number_of_requests)
+        for index in range(0, number_of_requests):
+            if source[index] == destination[index]:
+                rand_array = list(range(1, 18))
+                rand_array.remove(destination[index])
+                destination[index] = np.random.choice(rand_array)
 
+        # print("Finish generate sources and destination")
         # Generate exponential interval time and holding time of requests
         def generate_time(mean, number_requests):
             while True:
@@ -176,6 +177,7 @@ for fraction in range(300, 301, 20):
 
         # sort the whole time line
         time_new.sort()
+        # print("Finish time generation")
 
         # put each request into a list
         Req = []
@@ -189,10 +191,14 @@ for fraction in range(300, 301, 20):
             for req in Req:
                 if req.inTime == time:
                     Events.append(req)
+                    break
                 elif req.outTime == time:
                     temp = cp.copy(req)
                     temp.isCall = 1
                     Events.append(temp)
+                    break
+
+        # print("Finish creating events")
         # main
         for e in Events:
             if e.isCall == 0:
