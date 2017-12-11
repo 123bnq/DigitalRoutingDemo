@@ -1,3 +1,10 @@
+# test.py
+# Date: 01/10/2017
+#
+#
+#
+
+
 import networkx as nx
 import numpy as np
 import copy as cp
@@ -37,7 +44,7 @@ def binding_edges(request):
     while True:
         check = False
         all_paths = list(nx.all_simple_paths(G, request.source, request.des))
-        # sort all_paths in ascesding order
+        # sort all_paths in ascending order
         sorted_paths = []
         len_paths = []
         for path in all_paths:
@@ -131,7 +138,7 @@ def release_edges(request):
         print("request is block")
 
 
-for fraction in range(320, 401, 20):
+for fraction in range(1000, 1001, 20):
     print("Fraction of lambda/muy:", fraction)
     muy = 1
     lam = fraction * muy

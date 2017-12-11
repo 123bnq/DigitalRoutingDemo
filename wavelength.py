@@ -1,3 +1,4 @@
+# wavelength.py
 class Wavelength:
     def __init__(self):
         self.w = [2]*8
