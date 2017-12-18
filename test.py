@@ -10,6 +10,10 @@ import numpy as np
 import copy as cp
 from requests import Requests
 from wavelength import Wavelength
+import time as t
+
+start = t.clock()
+
 
 number_of_requests = 10000
 number_of_blocks = 0
@@ -57,6 +61,10 @@ def binding_edges(request):
                     all_paths.remove(path)
                     break
         path_is_set = False
+        # print("list", request.index)
+        # for pa in sorted_paths:
+        #     if (len(pa)<=5):
+        #         print(pa)
         while (not path_is_set) and sorted_paths != []:
             chosen_path = sorted_paths[0]
             list_of_wl = list(range(0, 8))
@@ -98,6 +106,7 @@ def binding_edges(request):
                                 # assign the chosen wavelength for each edge
                                 com_edges[edg].use_wavelength(chosen_wl)
                                 break
+                    # print(request.get_path(), request.get_wavelength())
                     path_is_set = True
                 # if the chosen wavelength is not free then discard the wavelength
                 # and choose the other wavelength randomly
@@ -108,9 +117,10 @@ def binding_edges(request):
                 break
             else:
                 sorted_paths.remove(chosen_path)
-        if sorted_paths == []:
+        if len(sorted_paths) == 0:
             global number_of_blocks
             number_of_blocks += 1
+            # print(request.source, ",", request.des, " request is block")
             # print("number of blocks: ", number_of_blocks, " index ", request.index,
             # "from ", request.source, " to ", request.des)
             # print("can't bind")
@@ -125,7 +135,9 @@ def binding_edges(request):
 
 
 def release_edges(request):
-    if request.get_path != []:
+    # print("release", request.index)
+    if request.get_path() != []:
+        # print(request.get_path())
         chosen_wl = request.get_wavelength()
         for i in range(0, len(request.get_path()) - 1):
             temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
@@ -134,15 +146,15 @@ def release_edges(request):
                 if edg == temp_edges1 or edg == temp_edges2:
                     com_edges[edg].release_wavelength(chosen_wl)
                     break
-    else:
-        print("request is block")
+    # else:
+        # print(request.source, ",", request.des, " request is block")
 
 
-for fraction in range(1000, 1001, 20):
+for fraction in range(500, 501, 20):
     print("Fraction of lambda/muy:", fraction)
     muy = 1
     lam = fraction * muy
-    for trial in range(1,6):
+    for trial in range(1, 6):
         number_of_blocks = 0
         # Generate source and destination
         source = np.random.randint(1, 18, number_of_requests)
@@ -214,4 +226,7 @@ for fraction in range(1000, 1001, 20):
                 release_edges(e)
 
         print("Trial", trial, ":", number_of_blocks/number_of_requests*100,"%")
+
+end = t.clock()
+print(end - start)
 
