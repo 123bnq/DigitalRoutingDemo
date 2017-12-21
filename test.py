@@ -61,19 +61,14 @@ def binding_edges(request):
                     all_paths.remove(path)
                     break
         path_is_set = False
-        # print("list", request.index)
-        # for pa in sorted_paths:
-        #     if (len(pa)<=5):
-        #         print(pa)
         while (not path_is_set) and sorted_paths != []:
             chosen_path = sorted_paths[0]
             list_of_wl = list(range(0, 8))
             while list_of_wl != [] and not path_is_set:
                 # choose random wavelength
                 chosen_wl = np.random.choice(list_of_wl)
-                # print("chosen wavelength: ", chosen_wl)
                 condition_loop = True
-                # loop through the wavelength list of each edge - bug
+                # loop through the wavelength list of each edge
                 for i in range(0, len(chosen_path) - 1):
                     # pick out one edge
                     temp_edges1 = (chosen_path[i], chosen_path[i + 1])
@@ -106,7 +101,6 @@ def binding_edges(request):
                                 # assign the chosen wavelength for each edge
                                 com_edges[edg].use_wavelength(chosen_wl)
                                 break
-                    # print(request.get_path(), request.get_wavelength())
                     path_is_set = True
                 # if the chosen wavelength is not free then discard the wavelength
                 # and choose the other wavelength randomly
@@ -117,16 +111,14 @@ def binding_edges(request):
                 break
             else:
                 sorted_paths.remove(chosen_path)
+        # the request is block - count
         if len(sorted_paths) == 0:
             global number_of_blocks
             number_of_blocks += 1
-            # print(request.source, ",", request.des, " request is block")
-            # print("number of blocks: ", number_of_blocks, " index ", request.index,
-            # "from ", request.source, " to ", request.des)
-            # print("can't bind")
             check = True
         if check:
             break
+    # assign the path and wavelength to the departure event
     for event in Events:
         if event != request and event.index == request.index:
             event.set_path(request.get_path())
@@ -135,9 +127,8 @@ def binding_edges(request):
 
 
 def release_edges(request):
-    # print("release", request.index)
+    # check whether the request has a path to be released
     if request.get_path() != []:
-        # print(request.get_path())
         chosen_wl = request.get_wavelength()
         for i in range(0, len(request.get_path()) - 1):
             temp_edges1 = (request.get_path()[i], request.get_path()[i + 1])
@@ -146,15 +137,19 @@ def release_edges(request):
                 if edg == temp_edges1 or edg == temp_edges2:
                     com_edges[edg].release_wavelength(chosen_wl)
                     break
-    # else:
-        # print(request.source, ",", request.des, " request is block")
 
 
-for fraction in range(500, 501, 20):
+muy = 1
+# assign multiple fraction values - change these values
+# in order to examine different ratio of holding time and inter-arrival time
+frac_start = 500
+frac_end = 501
+step = 20
+for fraction in range(frac_start, frac_end, step):
     print("Fraction of lambda/muy:", fraction)
-    muy = 1
     lam = fraction * muy
-    for trial in range(1, 6):
+    number_of_trial = 5
+    for trial in range(1, number_of_trial + 1):
         number_of_blocks = 0
         # Generate source and destination
         source = np.random.randint(1, 18, number_of_requests)
@@ -165,8 +160,7 @@ for fraction in range(500, 501, 20):
                 rand_array.remove(destination[index])
                 destination[index] = np.random.choice(rand_array)
 
-        # print("Finish generate sources and destination")
-        # Generate exponential interval time and holding time of requests
+        # Generate exponential inter-arrival time and holding time of requests
         def generate_time(mean, number_requests):
             while True:
                 condition = False
@@ -178,8 +172,9 @@ for fraction in range(500, 501, 20):
                     break
             return time
 
-
+        # Generate inter-arrival time
         events_time = generate_time(1/lam, number_of_requests)
+        # Generate holding time
         holding_time = generate_time(1/muy, number_of_requests)
 
         s = 0
@@ -196,9 +191,8 @@ for fraction in range(500, 501, 20):
 
         # sort the whole time line
         time_new.sort()
-        # print("Finish time generation")
 
-        # put each request into a list
+        # create the requests and put each request into a list
         Req = []
         for index in range(0, number_of_requests):
             req = Requests(time[index], time_line[index], source[index], destination[index], index)
@@ -217,7 +211,6 @@ for fraction in range(500, 501, 20):
                     Events.append(temp)
                     break
 
-        # print("Finish creating events")
         # main
         for e in Events:
             if e.isCall == 0:
@@ -225,8 +218,8 @@ for fraction in range(500, 501, 20):
             elif e.isCall == 1:
                 release_edges(e)
 
-        print("Trial", trial, ":", number_of_blocks/number_of_requests*100,"%")
+        print("Trial", trial, ":", number_of_blocks/number_of_requests*100, "%")
 
 end = t.clock()
-print(end - start)
-
+# print the processing time of the algorithm
+print("total processing time:", end - start)
